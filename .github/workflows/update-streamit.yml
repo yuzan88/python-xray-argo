@@ -3,7 +3,7 @@ name: auto update streamit
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 */12 * * *'
   repository_dispatch:
     types: [service-down-alert]
 
