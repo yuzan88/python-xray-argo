@@ -43,7 +43,7 @@ jobs:
           
           if grep -q "^# ver-" $FILE; then
             echo "已存在 '# ver-' 开头的旧版注释行，正在替换为新版注释行..."
-            sed -i'' "s#^# ver-.*#${NEW_LINE}#" $FILE
+            sed -i'' "/^# ver-/c\\${NEW_LINE}" $FILE
           else
             echo "不存在 '# ver-' 开头的版本注释行，正在写入版本注释行到文件顶部..."
             sed -i'' "1i\\$NEW_LINE" $FILE
