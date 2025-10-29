@@ -44,4 +44,4 @@ jobs:
         env:
           STREAMLIT_APP_URL: ${{ secrets.STREAMLIT_APP_URL }}
         run: |
-          python keep/streamlit.py
+          python keep/streamlit-keep.py
