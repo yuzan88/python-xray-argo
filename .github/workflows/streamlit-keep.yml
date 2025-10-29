@@ -1,4 +1,4 @@
-name: streamlit自动唤醒
+name: Streamlit自动唤醒
 
 on:
   workflow_dispatch:
@@ -6,25 +6,38 @@ on:
     types: [service-down-alert]
 
 jobs:
-  - name: 检查触发事件
-    run: |
-      echo "Workflow triggered by: ${{ github.event_name }}"
-      if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
-        echo "触发事件类型 (Event Type): ${{ github.event.action }}"
-        echo "收到来自 Uptime Kuma 的下线通知，开始执行自动恢复部署流程..."
-      elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-        echo "工作流被手动触发，开始执行部署..."
-      else
-        echo "工作流由计划任务触发，开始执行部署..."
-      fi
+  wakeup:
+    runs-on: ubuntu-latest
 
-  - name: 检查主分支
-    uses: actions/checkout@v4
+    steps:
+      - name: 检查触发事件
+        run: |
+          echo "Workflow triggered by: ${{ github.event_name }}"
+          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
+            echo "触发事件类型 (Event Type): ${{ github.event.action }}"
+            echo "收到来自 Uptime Kuma 的下线通知，开始执行自动恢复部署流程..."
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "工作流被手动触发，开始执行部署..."
+          else
+            echo "工作流由计划任务触发，开始执行部署..."
+          fi
 
-  - name: 安装依赖
-    run: |
-      pip -r requirements.txt
+      - name: 检出仓库代码
+        uses: actions/checkout@v4
 
-  - name: 执行保活脚本
-    run: |
-      py streamlit.py
+      - name: 设置 Python 环境
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: 安装 Python 依赖
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 执行 Streamlit 保活脚本
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+        run: |
+          echo "正在使用环境变量 APP_URL=$APP_URL"
+          python streamlit.py
