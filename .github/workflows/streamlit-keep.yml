@@ -1,9 +1,11 @@
-name: Streamlit自动唤醒
+name: Streamlit 自动唤醒
 
 on:
   workflow_dispatch:
   repository_dispatch:
     types: [service-down-alert]
+  # schedule:
+  #   - cron: '0 0 * * *' # 每天 UTC 00:00 运行
 
 jobs:
   wakeup:
@@ -15,29 +17,31 @@ jobs:
           echo "Workflow triggered by: ${{ github.event_name }}"
           if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
             echo "触发事件类型 (Event Type): ${{ github.event.action }}"
-            echo "收到来自 Uptime Kuma 的下线通知，开始执行自动恢复部署流程..."
+            echo "收到来自 Uptime Kuma 的下线通知，开始执行自动唤醒流程..."
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "工作流被手动触发，开始执行部署..."
+            echo "工作流被手动触发，开始执行唤醒..."
           else
-            echo "工作流由计划任务触发，开始执行部署..."
+            echo "工作流由计划任务触发，开始执行唤醒..."
           fi
 
       - name: 检出仓库代码
         uses: actions/checkout@v4
 
+      - name: 安装 Chromium
+        uses: browser-actions/setup-chromium@v1
+        
       - name: 设置 Python 环境
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
       - name: 安装 Python 依赖
         run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          pip install -r keep/requirements.txt
 
-      - name: 执行 Streamlit 保活脚本
+      - name: 执行 Streamlit 唤醒脚本
         env:
-          APP_URL: ${{ secrets.APP_URL }}
+          STREAMLIT_APP_URL: ${{ secrets.STREAMLIT_APP_URL }}
         run: |
-          echo "正在使用环境变量 APP_URL=$APP_URL"
-          python streamlit.py
+          python keep/streamlit.py
