@@ -18,11 +18,10 @@ class StreamlitAppWaker:
     """
     
     # 配置class类常量
-    APP_URL = "https://python-xray-argo-yutian81.streamlit.app"
+    APP_URL = os.environ.get("STREAMLIT_APP_URL", "")
     INITIAL_WAIT_TIME = 10  # 网站初始加载等待时间
     POST_CLICK_WAIT_TIME = 20  # 点击唤醒按钮后等待时间
     BUTTON_TEXT = "Yes, get this app back up!"
-    # 按钮的 XPath 或 CSS 选择器，使用 XPath 匹配文本最准确
     BUTTON_SELECTOR = "//button[text()='Yes, get this app back up!']"
     
     def __init__(self):
