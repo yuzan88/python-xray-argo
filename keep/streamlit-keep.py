@@ -29,11 +29,10 @@ class StreamlitAppWaker:
         self.setup_driver()
     
     def setup_driver(self):
-        """设置Chrome驱动选项"""
+        # 设置Chrome驱动选项
         logger.info("⚙️ 正在设置Chrome驱动...")
         chrome_options = Options()
         
-        # GitHub Actions或其他CI/CD环境配置
         if os.getenv('GITHUB_ACTIONS'):
             logger.info("⚙️ 检测到CI环境，启用headless模式。")
             chrome_options.add_argument('--headless')
@@ -48,7 +47,6 @@ class StreamlitAppWaker:
         chrome_options.add_experimental_option('useAutomationExtension', False)
         
         try:
-            # 假设驱动程序（如Chromium的driver）已在 PATH 中或由 GitHub Action 安装
             self.driver = webdriver.Chrome(options=chrome_options)
             self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
             logger.info("✅ Chrome驱动设置完成。")
@@ -67,7 +65,6 @@ class StreamlitAppWaker:
         logger.info(f"🔍 尝试在 {context_description} 查找唤醒按钮: '{self.BUTTON_TEXT}'")
         
         try:
-            # 尝试查找按钮
             # 使用 WebDriverWait 确保按钮出现并可点击
             button = self.wait_for_element_clickable(By.XPATH, self.BUTTON_SELECTOR, 5)
             
@@ -95,16 +92,15 @@ class StreamlitAppWaker:
         logger.info("🧐 检查唤醒按钮是否已消失...")
         
         # 1. 检查主页面
-        self.driver.switch_to.default_content() # 确保在主页面
+        self.driver.switch_to.default_content()
         try:
-            # 使用短的等待时间，检查按钮是否存在
+            # 等待5秒，检查按钮是否存在
             WebDriverWait(self.driver, 5).until(
                 EC.presence_of_element_located((By.XPATH, self.BUTTON_SELECTOR))
             )
             logger.info("❌ 唤醒按钮仍在主页面显示。应用未唤醒。")
             return False
         except TimeoutException:
-            # 找不到，可能是成功了，继续检查 iframe
             logger.info("✅ 唤醒按钮在主页面已消失。")
             
         # 2. 检查 iframe（Streamlit 应用有时会嵌入在 iframe 中）
@@ -116,12 +112,11 @@ class StreamlitAppWaker:
             WebDriverWait(self.driver, 5).until(
                 EC.presence_of_element_located((By.XPATH, self.BUTTON_SELECTOR))
             )
-            # 如果找到，说明未唤醒
+            
             self.driver.switch_to.default_content() # 切回主页面
             logger.info("❌ 唤醒按钮在 iframe 内仍显示。应用未唤醒。")
             return False
         except (NoSuchElementException, TimeoutException):
-            # 找不到 iframe 或在 iframe 内找不到按钮，都认为成功
             self.driver.switch_to.default_content() # 确保切回主页面
             logger.info("✅ 应用唤醒成功，唤醒按钮已消失。")
             return True
@@ -133,9 +128,7 @@ class StreamlitAppWaker:
 
 
     def wakeup_app(self):
-        """
-        执行唤醒流程
-        """
+        """执行唤醒流程"""
         if not self.APP_URL:
             raise Exception("⚠️ 环境变量 STREAMLIT_APP_URL 未配置。")
             
@@ -156,13 +149,9 @@ class StreamlitAppWaker:
             try:
                 # 查找页面上的 iframe
                 iframe = self.driver.find_element(By.TAG_NAME, "iframe")
-                
-                # 使用 try...finally 确保无论内部操作是否成功，都能切回主页面上下文
                 try:
                     self.driver.switch_to.frame(iframe)
                     logger.info("✅ 成功切换到 iframe。")
-                    
-                    # 在 iframe 内查找并点击
                     click_success = self.find_and_click_button("iframe内部")
                     
                 finally:
@@ -172,14 +161,12 @@ class StreamlitAppWaker:
             except NoSuchElementException:
                 logger.info("❌ 页面未找到 iframe 元素。")
             except Exception as e:
-                # 这里的异常主要处理 find_element 或 switch_to.frame 失败的情况
                 logger.error(f"❌ 查找或切换到 iframe 时出错: {e}")
                 
         if not click_success:
             # 如果主页面和 iframe 都没有找到并点击成功
             if self.is_app_woken_up():
-                # 修正的返回值格式
-                return True, "应用已处于唤醒状态，无需操作。" 
+                return True, "✅ 应用已处于唤醒状态，无需操作。" 
             else:
                 raise Exception("⚠️ 找不到或无法点击唤醒按钮。请检查应用URL和按钮选择器是否正确。")
         
@@ -189,8 +176,7 @@ class StreamlitAppWaker:
         
         # 步骤 4: 检查唤醒结果 (按钮是否消失)
         if self.is_app_woken_up():
-            # 修正的返回值格式
-            return True, "✅ Streamlit应用唤醒成功！"
+            return True, "✅ 应用唤醒成功！"
         else:
             raise Exception("❌ 唤醒操作已执行，但唤醒按钮在等待后仍然存在。应用可能未能成功启动。")
 
@@ -200,7 +186,6 @@ class StreamlitAppWaker:
         success = False
         try:
             logger.info("🚀 Streamlit应用唤醒脚本开始执行...")
-            # run 方法现在可以正确接收 (success, result) 元组
             success, result = self.wakeup_app() 
             return success, result
                 
@@ -216,29 +201,24 @@ class StreamlitAppWaker:
 
 def main():
     """主函数"""
-    # 打印配置的URL，便于调试
     app_url = os.environ.get("STREAMLIT_APP_URL", "未配置，将使用默认值(空)")
     logger.info(f"配置的应用 URL: {app_url}")
     
     waker = None
     try:
         waker = StreamlitAppWaker()
-        # waker.run() 返回 (success, result)
         success, result = waker.run()
-        
-        logger.info(f"最终结果: {result}")
+        logger.info(f"🚀 最终结果: {result}")
         
         if success:
             logger.info("✅ 脚本执行完毕，应用唤醒流程成功。")
             exit(0)
         else:
             logger.error(f"❌ 脚本执行完毕，应用唤醒流程失败。")
-            # 即使失败，也退出 0 以避免 CI/CD 流程中断，除非是脚本自身的致命错误
             exit(0)
             
     except Exception as e:
         logger.error(f"❌ 脚本主函数出错: {e}")
-        # 如果是致命的初始化错误，返回非零退出码
         exit(1)
 
 if __name__ == "__main__":
