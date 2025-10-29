@@ -1,4 +1,3 @@
-# ver-2025-10-28-22:24:12 by yutian81
 import os
 import re
 import json
