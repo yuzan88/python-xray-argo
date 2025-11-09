@@ -21,12 +21,12 @@ UUID = os.environ.get('UUID', '4492faf4-18ed-4820-967f-63313572bd78')  # UUID,�
 NEZHA_SERVER = os.environ.get('NEZHA_SERVER', 'ycv.dpdns.org:8008')        # 哪吒面板域名或ip, v1格式: nezha.xxx.com:8008, v0格式: nezha.xxx.com
 NEZHA_PORT = os.environ.get('NEZHA_PORT', '')            # v1哪吒请留空, v0哪吒的agent通信端口,自动匹配tls
 NEZHA_KEY = os.environ.get('NEZHA_KEY', 'uK6lptvEoZ7TsX6yzjOxSd3RYeGCHCJj')              # v1哪吒的NZ_CLIENT_SECRET或v0哪吒agent密钥
-ARGO_DOMAIN = os.environ.get('ARGO_DOMAIN', 'py.a.5.a.f.0.7.4.0.1.0.0.2.ip6.arpa')          # Argo固定隧道域名,留空即使用临时隧道
+ARGO_DOMAIN = os.environ.get('ARGO_DOMAIN', 'py.dajb.netlib.re')          # Argo固定隧道域名,留空即使用临时隧道
 ARGO_AUTH = os.environ.get('ARGO_AUTH', 'eyJhIjoiMTZlZDI2MTFjNGE5ZGYzYjQ5NWNjYzA4NWU2MWVkN2YiLCJ0IjoiYzM5ZWU3NjYtMGU1YS00MTQzLTk1YWEtZjA5MDdhNjZmMjNmIiwicyI6Ik5ESmpaRFEyTmpFdE5tTXdNQzAwTVRrMExUazBPVFl0WkdWbE9EazRNRFpsWVdKaiJ9')              # Argo固定隧道密钥,留空即使用临时隧道
 ARGO_PORT = int(os.environ.get('PORT', '8001'))
 CFIP = os.environ.get('CFIP', 'cf.877774.xyz')          # 优选ip或优选域名
 CFPORT = int(os.environ.get('CFPORT', '443'))            # 优选ip或优选域名对应端口
-NAME = os.environ.get('NAME', 'Stream')                      # 节点名称
+NAME = os.environ.get('NAME', 'StrEam')                      # 节点名称
 CHAT_ID = os.environ.get('CHAT_ID', '')                  # Telegram chat_id,推送节点到tg,两个变量同时填写才会推送
 BOT_TOKEN = os.environ.get('BOT_TOKEN', '')              # Telegram bot_token
 
